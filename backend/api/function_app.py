@@ -22,6 +22,19 @@ container = db.create_container_if_not_exists(
 @app.route(route="visits", auth_level=func.AuthLevel.ANONYMOUS)
 def visitor_counter(req: func.HttpRequest) -> func.HttpResponse:
 
+    # Handle browser CORS preflight
+    if req.method == "OPTIONS":
+        return func.HttpResponse(
+            "",
+            status_code=204,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type"
+            }
+        )
+
+    # Normal GET logic
     item_id = "1"
 
     try:
@@ -34,5 +47,10 @@ def visitor_counter(req: func.HttpRequest) -> func.HttpResponse:
 
     return func.HttpResponse(
         json.dumps({"visits": item["count"]}),
-        mimetype="application/json"
+        mimetype="application/json",
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type"
+        }
     )
