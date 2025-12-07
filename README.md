@@ -43,3 +43,15 @@ pip install -r requirements.txt
 ## Deployed the Front end website (again) with the updated javascript 
 
 - Update the CORS on Azure Functions app with primary endpoint(azure storage static website) so that the visitor count is visible.
+
+## Azure CDN/FrontDoor deployment failed
+
+- Free Trial and Student account is forbidden for Azure Frontdoor resources.
+
+## CI/CD - Github workflows
+- Create .github folder and create workflows for frontend and backend yml files.
+- Generate the deployment credentials by running the following command.
+  ```bash
+  az ad sp create-for-rbac --name {myStaticSite} --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group} --sdk-auth
+  ```
+- JSON output will have the credentials and paste them to Github->Settings->Security (Secrets and variables)->New secret
