@@ -36,7 +36,7 @@ pip install -r requirements.txt
   - Choose Create Azure Function app on Azure advanced option on VS Code
   - Choose/Create Resource Group, Storage Account, App Insights
   - Update Python Runtime Version in Azure Portal -> Function App -> Settings -> Configuration -> Stack Settings
-  - Upload the settings locally so that function is deployed properly to Azure
+  - Upload the settings locally so that function is deployed properly to Azure (when you deploy from VS code click the option upload settings)
 
 ![alt text](image.png)
 
@@ -55,3 +55,20 @@ pip install -r requirements.txt
   az ad sp create-for-rbac --name {myStaticSite} --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group} --sdk-auth
   ```
 - JSON output will have the credentials and paste them to Github->Settings->Security (Secrets and variables)->New secret
+
+## Python unittest
+- Create the test_app.py file in the same directory as function_app.py file.
+- Run below command to install pytest and azure-functions
+```bash
+pip install pytest azure-functions
+``` 
+- **Problem Statement **- the environment variables defining the COSMOS DB details outside of a decorated Azure Function @app.function. the code that handles container_details and initializes the blob client is likely running at the global level during startup. 
+- To resolve this, you need to ensure that the setup logic runs only when the function is invoked, or that any global initialization is robust and wrapped in error handling. 
+- Updated the function_app.py by creating a global function to wrap COSMOS DB details and runs only when the function is invoked. This helped to create a mock container during unittest
+
+- 
+- Command to run tests
+  
+```bash
+pytest test_app.py
+``` 

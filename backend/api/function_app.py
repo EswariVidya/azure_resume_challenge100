@@ -1,3 +1,4 @@
+# function_app.py (UPDATED)
 import azure.functions as func
 import json
 import os
@@ -5,25 +6,39 @@ from azure.cosmos import CosmosClient, PartitionKey
 
 app = func.FunctionApp()
 
-# Cosmos env variables
-endpoint = os.environ["COSMOS_ENDPOINT"]
-key = os.environ["COSMOS_KEY"]
-db_name = os.environ["COSMOS_DATABASE"]
-container_name = os.environ["COSMOS_CONTAINER"]
+# Move the client setup logic into a function or use singletons/lazy loading
+# We can use a simple global variable to act as a cache once initialized
+cosmos_container = None
 
-client = CosmosClient(endpoint, key)
-db = client.create_database_if_not_exists(id=db_name)
-container = db.create_container_if_not_exists(
-    id=container_name,
-    partition_key=PartitionKey(path="/id")
-)
+def get_cosmos_container():
+    """Initializes and returns the Cosmos DB container client."""
+    global cosmos_container
+    if cosmos_container is not None:
+        return cosmos_container
+
+    # Read env variables here, when this function is called
+    endpoint = os.environ["COSMOS_ENDPOINT"]
+    key = os.environ["COSMOS_KEY"]
+    db_name = os.environ["COSMOS_DATABASE"]
+    container_name = os.environ["COSMOS_CONTAINER"]
+
+    client = CosmosClient(endpoint, key)
+    db = client.create_database_if_not_exists(id=db_name)
+    cosmos_container = db.create_container_if_not_exists(
+        id=container_name,
+        partition_key=PartitionKey(path="/id")
+    )
+    return cosmos_container
 
 @app.function_name(name="visitorCounter")
 @app.route(route="visits", auth_level=func.AuthLevel.ANONYMOUS)
 def visitor_counter(req: func.HttpRequest) -> func.HttpResponse:
+    # Get the initialized container instance *inside* the request handler
+    container = get_cosmos_container()
 
-    # Handle browser CORS preflight
+    # Handle browser CORS preflight (rest of the logic remains the same)
     if req.method == "OPTIONS":
+        # ... (CORS logic here) ...
         return func.HttpResponse(
             "",
             status_code=204,
