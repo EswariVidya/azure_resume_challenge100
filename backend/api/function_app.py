@@ -49,7 +49,7 @@ def visitor_counter(req: func.HttpRequest) -> func.HttpResponse:
             }
         )
 
-    # Normal GET logic
+    # Normal GET logic - Update Counter
     item_id = "1"
 
     try:
