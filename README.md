@@ -66,7 +66,7 @@ pip install pytest azure-functions
 - To resolve this, you need to ensure that the setup logic runs only when the function is invoked, or that any global initialization is robust and wrapped in error handling. 
 - Updated the function_app.py by creating a global function to wrap COSMOS DB details and runs only when the function is invoked. This helped to create a mock container during unittest
 
-- 
+- Unittest tests with mock cosmos container for initial function app setup and subsequent update
 - Command to run tests
   
 ```bash

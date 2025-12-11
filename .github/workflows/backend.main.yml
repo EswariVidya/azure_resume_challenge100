@@ -1,4 +1,4 @@
-name: deploy_backend
+name: Deploy_backend
 
 on:
   push: 

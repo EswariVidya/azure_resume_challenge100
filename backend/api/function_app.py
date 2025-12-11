@@ -7,7 +7,7 @@ from azure.cosmos import CosmosClient, PartitionKey
 app = func.FunctionApp()
 
 # Move the client setup logic into a function or use singletons/lazy loading
-# We can use a simple global variable to act as a cache once initialized
+# We can use a simple global variable to act as a cache once initialized (this helps to mock cosmos container for test)
 cosmos_container = None
 
 def get_cosmos_container():
