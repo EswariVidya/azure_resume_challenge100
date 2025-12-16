@@ -2,7 +2,8 @@ window.addEventListener('DOMContentLoaded', (e) => {
     getVisitorCount();
 })
 
-const functionAPIUrl = 'https://azureresumecounter100.azurewebsites.net/api/visits'
+const functionAPIUrl = 'https://azrcfa-v0io0sh.azurewebsites.net/api/visits'
+// const functionAPIUrl = 'https://azureresumecounter100.azurewebsites.net/api/visits'
 const localFunctionAPI = 'http://localhost:7071/api/visits';
 
 const getVisitorCount = () => {

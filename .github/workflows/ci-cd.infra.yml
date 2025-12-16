@@ -1,0 +1,7 @@
+name: CI-Deploy Infra-Upload frontend-Upload Functionapp-Test-Deploy
+
+on:
+  push:
+    branches: [ main ]
+        paths:
+        - 'frontend/**'

@@ -1,5 +1,5 @@
 # vidya azureresume
-My own cloud resume
+My own cloud resume challenge
 
 ## First steps
 
@@ -8,8 +8,8 @@ My own cloud resume
 
 ## Created backend 
 - Azure Cosmos DB on Azure with Container to store count value.
-- Setup Azure Function app locally 
-- Install Azure Functions Core Tools 
+- Setup Azure Function app locally on VS code
+- Install Azure Functions Core Tools (VS code)
 - Run below command 
 ```bash
 npm i -g azure-functions-core-tools@4 --unsafe-perm true
@@ -36,7 +36,7 @@ pip install -r requirements.txt
   - Choose Create Azure Function app on Azure advanced option on VS Code
   - Choose/Create Resource Group, Storage Account, App Insights
   - Update Python Runtime Version in Azure Portal -> Function App -> Settings -> Configuration -> Stack Settings
-  - Upload the settings locally so that function is deployed properly to Azure (when you deploy from VS code click the option upload settings)
+  - Upload the settings locally so that function is deployed properly to Azure (when you deploy from VS code click the option upload settings) - local.settings.json file contains cosmos-connection-string
 
 ![alt text](image.png)
 
@@ -57,7 +57,7 @@ pip install -r requirements.txt
 - JSON output will have the credentials and paste them to Github->Settings->Security (Secrets and variables)->New secret
 
 ## Python unittest
-- Create the test_app.py file in the same directory as function_app.py file.
+- Create the `test_app.py` file in the same directory as `function_app.py` file.
 - Run below command to install pytest and azure-functions
 ```bash
 pip install pytest azure-functions
@@ -72,3 +72,49 @@ pip install pytest azure-functions
 ```bash
 pytest test_app.py
 ``` 
+## Github workflow - frontend and backend yml file
+
+- frontend.main.yml - Use templates from Azure to upload/deploy blob storage when changes are made to frontend/HTML code.
+- (https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-static-site-github-actions?tabs=openid)
+- backend.main.yml - Used to deploy Azure function app and Run tests when changes are made to backend/tests/function app code.
+- (https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=linux%2Cpython&pivots=method-template)
+
+## Terraform your Cloud Resume Challenge
+
+- Create frontend resources for static website using Azure storage account.
+- To upload all the files from frontend `for_each` was used in the terraform `azurerm_storage_blob` but this is not recommended as Terraform does not manage deletions. If you remove a file from your local frontend folder and run `terraform apply`, Terraform will not automatically delete the corresponding blob in the Azure Storage account. The old, stale file will remain hosted.
+- Terraform doesnot create/is not recommended to create item documents within azure cosmos db. So function_app.py is updated to create items if it doesnot exists.
+- The function api must be zipped and uploaded to the Azure Function app. For testing manually, these commands were used -
+- 
+```bash
+cd api
+zip -r functionapp.zip .
+``` 
+
+```bash
+az functionapp deployment source config-zip \
+  --resource-group rg-func-api \
+  --name my-func-api \
+  --src functionapp.zip
+ ``` 
+
+- The above method doesn't load the function app so function app was published using below command -
+
+ ```bash
+  func azure functionapp publish <function_app_name>
+```
+
+- When manually updated the function app api URL to `viewCount.js` file on static website on Azure Storage account, the faced caching issue that the primary endpoint was still relying on the old API. If CDN was enable we need to purge otherwise do a hard refresh (`Cmd+Shift+R`) on MAC that worked!
+
+- Create backend(Azure resource group & Storage account) on Azure for terraform to store tfstate files and export `access_key`
+- To configure the backend state, you need the following Azure storage information:
+
+  - storage_account_name: The name of the Azure Storage account.
+  * container_name: The name of the blob container.
+  + key: The name of the state store file to be created.
+  - access_key: The storage access key.
+  
+```bash
+ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
+export ARM_ACCESS_KEY=$ACCOUNT_KEY
+```
