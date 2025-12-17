@@ -134,7 +134,7 @@ And to go one level up commit
 
 ### Terraform - Github Workflow Backend Config
 - Problem - no configured federated identity credentials.
-- This error occurs because your Azure App Registration (azresumechallenge100) has not been authorized to trust the OIDC tokens issued by GitHub Actions. To use ARM_USE_OIDC: "true", you must manually establish this trust relationship in the Azure Portal. 
+- This error occurs because your Azure App Registration has not been authorized to trust the OIDC tokens issued by GitHub Actions. To use ARM_USE_OIDC: "true", you must manually establish this trust relationship in the Azure Portal. 
 <details>
 <summary>Step 1: Create Federated Credentials in Azure</summary>
 Sign in to the Azure Portal.
@@ -159,7 +159,7 @@ permissions:
   contents: read   # Required for actions/checkout
 </details>
 
-- Problem - Contributor/read access to the Application/Client created
+- Problem - Azure App Registration/Client does not have Contributor/Read access (No authorization to read Subscription/Resource group)
 <details>
 <summary>Solution: Assign the "Contributor" Role
 The most effective fix for Terraform-managed infrastructure is assigning the Contributor role at the Subscription scope. This ensures that when Terraform "reads" the state, it has permission to see both the resource group and the resources inside it. 

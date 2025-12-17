@@ -118,7 +118,7 @@ jobs:
       site_url:  ${{ steps.tf_out_dev.outputs.site_url }}
 
   # =========================
-  # 2) Deploy  (Functions + Static Web)
+  # 2) Deploy  (Static Web + Functions app )
   # =========================
   infra_deploy:
     name: Deploy Static webapp & Function api
@@ -148,3 +148,39 @@ jobs:
         with:
           inlineScript: |
             az storage blob upload-batch --account-name "${AZ_SWB_NAME}" --auth-mode key -d '$web' -s frontend/ --overwrite
+
+      - name: Download functions artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: functionapp-zip
+          path: _dist
+
+      - name: Verify Function App exists in this subscription
+        shell: bash
+        run: |
+          set -e
+          az functionapp show -g "${AZ_RG}" -n "${AZ_FUNC_NAME}" --query "name" -o tsv
+
+      - name: Deploy Functions (DEV)
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZ_FUNC_NAME }}
+          package: _dist/functionapp.zip
+
+      - name: Add CORS for Function App
+        shell: bash
+        run: |
+          az functionapp cors remove -g "${AZ_RG}" -n "${AZ_FUNC_NAME}" --allowed-origins '*' || true
+          if [ -n "${SITE_URL}" ]; then
+            az functionapp cors add -g "${AZ_RG}" -n "${AZ_FUNC_NAME}" --allowed-origins "${SITE_URL}"
+    
+      - name: Stamp DEV API base into appconfig.js
+        shell: bash
+        run: echo "window.__APP_CONFIG__={apiBase:'${API_BASE_URL}'};" > frontend/appconfig.js
+
+      - name: Expose endpoints
+        id: dev_out
+        shell: bash
+        run: |
+          echo "site_url=${$SITE_URL}"  >> $GITHUB_OUTPUT
+          echo "api=${API_BASE_URL}" >> $GITHUB_OUTPUT
