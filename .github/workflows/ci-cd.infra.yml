@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: functionapp-zip
-          path: functionapp.zip
+          path: backend/functionapp.zip
           if-no-files-found: error
 
   # =========================
