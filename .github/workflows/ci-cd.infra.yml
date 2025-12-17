@@ -9,15 +9,6 @@ on:
          - 'infra/**'
          - '.github/workflows/ci-cd.infra.yml'
 
-# on:
-#   push:
-#     branches: [ main ]
-#         paths:
-#         - 'frontend/**'
-#         - 'backend/**'
-#         - 'infra/**'
-#         - '.github/workflows/ci-cd.yml'
-
 permissions:
       id-token: write
       contents: read
@@ -41,10 +32,10 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
-          cache-dependency-path: ${{ env.FUNCTIONS_DIR }}/requirements.txt
+          cache-dependency-path: ${{ env.FUNCTIONS_DIR }}/api/requirements.txt
 
       - name: Vendor deps into .python_packages
-        working-directory: ${{ env.FUNCTIONS_DIR }}
+        working-directory: ${{ env.FUNCTIONS_DIR }}/api
         run: |
           rm -rf .python_packages
           mkdir -p .python_packages/lib/site-packages
@@ -52,7 +43,7 @@ jobs:
           pip install -r requirements.txt --target .python_packages/lib/site-packages
 
       - name: Verify required files exist
-        working-directory: ${{ env.FUNCTIONS_DIR }}
+        working-directory: ${{ env.FUNCTIONS_DIR }}/api
         run: |
           test -f host.json
           test -f function_app.py
@@ -83,12 +74,13 @@ jobs:
     env:
       TF_IN_AUTOMATION: "1"
       ARM_USE_OIDC: "true"
+      client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
-        with:
-          creds: ${{ secrets.AZURE_RESUME_SECRET }}
-
+    
       - name: Init DEV state
         run: terraform init -input=false -reconfigure -backend-config="key=cloudchallenge/dev.tfstate"
 

@@ -122,4 +122,13 @@ export ARM_ACCESS_KEY=$ACCOUNT_KEY
 ```
 
 - Inorder to update the newly created Function app API URL to `viewCount.js` file, it is being coded to fetch from `appconfig.js` file. `appconfig.js` file is generated during CI/CD. creates the file at build/deploy time, not in your repo. You won’t see it in GitHub. You will see it in the deployed site.
+
+- Since `.gitignore` file was not placed at the right position, terraform config/binaries files were not ignored from staged and ultimately was tried to push to git. To remove manually from staging -
+```bash
+git rm -r --cached infra/.terraform
+```
+And to go one level up commit 
+`git reset --soft HEAD~1` undoes the last commit but keeps all your changes staged.
+
+- Updated the test_app.py file according to functio_app.py changes thanks to Google Gemini.
 - 
