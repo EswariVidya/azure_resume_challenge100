@@ -175,3 +175,8 @@ Search for your App Registration name: azresumechallenge100.
 Select it and click Select.
 Review + Assign: Click Review + assign to finish. </summary>
 </details>
+
+- Finally! I had to upload the frontend files after the API URL was updated to `viewCount.js` from `appconfig.js`. Tada! visitor count updated on the new static website azure account primary endpoint.
+
+## Pending items
+- We still have CDN and DNS/custom Domain pending as I couldn't do with free account on Azure.
