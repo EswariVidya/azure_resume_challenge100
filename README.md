@@ -30,7 +30,7 @@ pip install -r requirements.txt
   - Update local.settings.json file with Cosmos DB credentials (kept secret)
 - Update Git adding .gitignore file add local.settings.json 
 
-##Deploy Azure Function App
+## Deploy Azure Function App
 
 - Deploy locally created Function App to Azure
   - Choose Create Azure Function app on Azure advanced option on VS Code
@@ -85,7 +85,7 @@ pytest test_app.py
 - To upload all the files from frontend `for_each` was used in the terraform `azurerm_storage_blob` but this is not recommended as Terraform does not manage deletions. If you remove a file from your local frontend folder and run `terraform apply`, Terraform will not automatically delete the corresponding blob in the Azure Storage account. The old, stale file will remain hosted.
 - Terraform doesnot create/is not recommended to create item documents within azure cosmos db. So function_app.py is updated to create items if it doesnot exists.
 - The function api must be zipped and uploaded to the Azure Function app. For testing manually, these commands were used -
-- 
+  
 ```bash
 cd api
 zip -r functionapp.zip .
@@ -161,7 +161,7 @@ permissions:
 
 - Problem - Azure App Registration/Client does not have Contributor/Read access (No authorization to read Subscription/Resource group)
 <details>
-<summary>Solution: Assign the "Contributor" Role
+<summary>Solution: Assign the "Contributor" Role</summary>
 The most effective fix for Terraform-managed infrastructure is assigning the Contributor role at the Subscription scope. This ensures that when Terraform "reads" the state, it has permission to see both the resource group and the resources inside it. 
 Option 1: Using the Azure Portal (Easiest)
 Open Subscriptions: Search for Subscriptions in the top bar and select yours.
@@ -173,7 +173,7 @@ Ensure "Assign access to" is set to User, group, or service principal.
 Click + Select members.
 Search for your App Registration name: azresumechallenge100.
 Select it and click Select.
-Review + Assign: Click Review + assign to finish. </summary>
+Review + Assign: Click Review + assign to finish. 
 </details>
 
 - Finally! I had to upload the frontend files after the API URL was updated to `viewCount.js` from `appconfig.js`. Tada! visitor count updated on the new static website azure account primary endpoint.
