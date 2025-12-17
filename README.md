@@ -128,7 +128,7 @@ export ARM_ACCESS_KEY=$ACCOUNT_KEY
 git rm -r --cached infra/.terraform
 ```
 And to go one level up commit 
-`git reset --soft HEAD~1` undoes the last commit but keeps all your changes staged.
+`git reset --soft HEAD~1` undoes the last commit but keeps all your changes staged. (Used when unwanted files commited/Wrong commitmessgaed updated)
 
 - Updated the test_app.py file according to functio_app.py changes thanks to Google Gemini.
 - 
