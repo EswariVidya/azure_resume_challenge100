@@ -97,7 +97,7 @@ jobs:
       # Simple tweak: -lock=false on plan to avoid stale lock during planning
       - name: Plan
         run: terraform plan -input=false -lock=false -out=tfplan
-
+      # Fix more permission error (needed Contributor access at the Subscription scope )
       - name: Apply
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: terraform apply -input=false -auto-approve tfplan

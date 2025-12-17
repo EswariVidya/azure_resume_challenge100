@@ -158,3 +158,20 @@ permissions:
   id-token: write  # Required for requesting the JWT
   contents: read   # Required for actions/checkout
 </details>
+
+- Problem - Contributor/read access to the Application/Client created
+<details>
+<summary>Solution: Assign the "Contributor" Role
+The most effective fix for Terraform-managed infrastructure is assigning the Contributor role at the Subscription scope. This ensures that when Terraform "reads" the state, it has permission to see both the resource group and the resources inside it. 
+Option 1: Using the Azure Portal (Easiest)
+Open Subscriptions: Search for Subscriptions in the top bar and select yours.
+Access Control: Click Access control (IAM) in the left-hand menu.
+Add Role Assignment: Click + Add -> Add role assignment.
+Select Role: Select the Contributor role and click Next.
+Select Member:
+Ensure "Assign access to" is set to User, group, or service principal.
+Click + Select members.
+Search for your App Registration name: azresumechallenge100.
+Select it and click Select.
+Review + Assign: Click Review + assign to finish. </summary>
+</details>
