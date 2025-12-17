@@ -106,6 +106,8 @@ az functionapp deployment source config-zip \
 
 - When manually updated the function app api URL to `viewCount.js` file on static website on Azure Storage account, the faced caching issue that the primary endpoint was still relying on the old API. If CDN was enable we need to purge otherwise do a hard refresh (`Cmd+Shift+R`) on MAC that worked!
 
+## Github workflow with Terraform infra
+
 - Create backend(Azure resource group & Storage account) on Azure for terraform to store tfstate files and export `access_key`
 - To configure the backend state, you need the following Azure storage information:
 
@@ -118,3 +120,6 @@ az functionapp deployment source config-zip \
 ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
 export ARM_ACCESS_KEY=$ACCOUNT_KEY
 ```
+
+- Inorder to update the newly created Function app API URL to `viewCount.js` file, it is being coded to fetch from `appconfig.js` file. `appconfig.js` file is generated during CI/CD. creates the file at build/deploy time, not in your repo. You won’t see it in GitHub. You will see it in the deployed site.
+- 

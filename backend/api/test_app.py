@@ -1,70 +1,93 @@
-# test_app.py (UPDATED)
-import pytest
-import json
-from unittest.mock import patch, MagicMock
+import unittest
+from unittest.mock import MagicMock, patch
 import azure.functions as func
+import json
+from azure.cosmos.errors import CosmosResourceNotFoundError
 
-# Import the function you want to test
-from function_app import visitor_counter, get_cosmos_container
+# Import the function from your file (assuming the file is named function_app.py)
+from function_app import visitor_counter
 
-# Use a fixture to provide a consistent mock container object for all tests
-@pytest.fixture
-def mock_container_client():
-    """Provides a mock object that simulates the Cosmos DB container."""
-    return MagicMock()
+class TestVisitorCounter(unittest.TestCase):
 
-# Patch the get_cosmos_container function to return our mock
-@patch('function_app.get_cosmos_container')
-def test_visitor_counter_initial_visit(mock_get_container, mock_container_client):
-    """
-    Test the scenario where the item does not exist (first visit).
-    """
-    # Arrange
-    # Configure the mock to be returned when get_cosmos_container() is called
-    mock_get_container.return_value = mock_container_client
+    def setUp(self):
+        # Create a mock for the Cosmos Container
+        self.mock_container = MagicMock()
+        
+        # Patch the global cosmos_container variable in function_app
+        # This bypasses the get_cosmos_container() logic that looks for env vars
+        self.patcher = patch('function_app.cosmos_container', self.mock_container)
+        self.patcher.start()
 
-    # Simulate that read_item raises an exception (item not found)
-    mock_container_client.read_item.side_effect = Exception("Item not found")
+    def tearDown(self):
+        self.patcher.stop()
 
-    # Define the expected item created by the function
-    expected_item = {"id": "1", "count": 1}
-    mock_container_client.upsert_item.return_value = expected_item
+    def test_visitor_counter_new_item(self):
+        """Test scenario where the item does not exist (First Visit)"""
+        # Mock read_item to raise a 404 error
+        self.mock_container.read_item.side_effect = CosmosResourceNotFoundError()
 
-    # Create a mock HTTP request object
-    req = func.HttpRequest(method='GET', url='/api/visits', headers={}, body=None)
+        # Construct a mock HTTP request
+        req = func.HttpRequest(
+            method='GET',
+            body=None,
+            url='/api/visits'
+        )
 
-    # Act
-    resp: func.HttpResponse = visitor_counter(req)
+        # Call the function
+        resp = visitor_counter(req)
+        resp_body = json.loads(resp.get_body())
 
-    # Assert
-    assert resp.status_code == 200
-    assert json.loads(resp.get_body()) == {"visits": 1}
-    mock_container_client.read_item.assert_called_once()
-    mock_container_client.upsert_item.assert_called_once_with(expected_item)
+        # Assertions
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp_body['visits'], 1)
+        self.mock_container.upsert_item.assert_called_with(body={'id': '1', 'count': 1})
 
+    def test_visitor_counter_existing_item(self):
+        """Test scenario where the item exists (Increment Visit)"""
+        # Mock read_item to return an existing record
+        self.mock_container.read_item.return_value = {'id': '1', 'count': 5}
 
-@patch('function_app.get_cosmos_container')
-def test_visitor_counter_subsequent_visit(mock_get_container, mock_container_client):
-    """
-    Test the scenario where the item exists and the count needs to be incremented.
-    """
-    # Arrange
-    mock_get_container.return_value = mock_container_client
+        req = func.HttpRequest(
+            method='GET',
+            body=None,
+            url='/api/visits'
+        )
 
-    # Simulate an existing item being read
-    existing_item = {"id": "1", "count": 5}
-    mock_container_client.read_item.return_value = existing_item
+        resp = visitor_counter(req)
+        resp_body = json.loads(resp.get_body())
 
-    # Create a mock HTTP request
-    req = func.HttpRequest(method='GET', url='/api/visits', headers={}, body=None)
+        # Assertions
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp_body['visits'], 6)
+        self.mock_container.upsert_item.assert_called_with(body={'id': '1', 'count': 6})
 
-    # Act
-    resp: func.HttpResponse = visitor_counter(req)
+    def test_visitor_counter_options_request(self):
+        """Test CORS preflight OPTIONS request"""
+        req = func.HttpRequest(
+            method='OPTIONS',
+            body=None,
+            url='/api/visits'
+        )
 
-    # Assert the response structure and content
-    assert resp.status_code == 200
-    assert json.loads(resp.get_body()) == {"visits": 6}
+        resp = visitor_counter(req)
 
-    # Verify that upsert was called with the *incremented* item data
-    updated_item = {"id": "1", "count": 6}
-    mock_container_client.upsert_item.assert_called_once_with(updated_item)
+        self.assertEqual(resp.status_code, 204)
+        self.assertEqual(resp.headers.get('Access-Control-Allow-Origin'), '*')
+
+    def test_visitor_counter_error_handling(self):
+        """Test scenario where Cosmos DB throws an unexpected error"""
+        self.mock_container.read_item.side_effect = Exception("Connection Failed")
+
+        req = func.HttpRequest(
+            method='GET',
+            body=None,
+            url='/api/visits'
+        )
+
+        resp = visitor_counter(req)
+        
+        self.assertEqual(resp.status_code, 500)
+        self.assertIn("unexpected error", resp.get_body().decode())
+
+if __name__ == '__main__':
+    unittest.main()

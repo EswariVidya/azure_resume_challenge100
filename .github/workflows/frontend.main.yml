@@ -1,38 +1,38 @@
-name: Deploy_frontend
-#Deploys when push is made from frontend folder
-on:
-    push:
-        branches: [ main ]
-        paths:
-        - 'frontend/**'
+# name: Deploy_frontend
+# #Deploys when push is made from frontend folder
+# on:
+#     push:
+#         branches: [ main ]
+#         paths:
+#         - 'frontend/**'
 
-permissions:
-      id-token: write
-      contents: read
+# permissions:
+#       id-token: write
+#       contents: read
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_RESUME_SECRET }}
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v3
+#     - uses: azure/login@v2
+#       with:
+#         creds: ${{ secrets.AZURE_RESUME_SECRET }}
      
 
-    - name: Upload to blob storage
-      uses: azure/CLI@v1
-      with:
-        inlineScript: |
-            az storage blob upload-batch --account-name azresumewebsite --auth-mode key -d '$web' -s frontend/ --overwrite
-    # - name: Purge CDN endpoint
-    #   uses: azure/CLI@v1
-    #   with:
-    #     inlineScript: |
-    #        az cdn endpoint purge --content-paths  "/*" --profile-name "CDN_PROFILE_NAME" --name "CDN_ENDPOINT" --resource-group "RESOURCE_GROUP"
+#     - name: Upload to blob storage
+#       uses: azure/CLI@v1
+#       with:
+#         inlineScript: |
+#             az storage blob upload-batch --account-name azresumewebsite --auth-mode key -d '$web' -s frontend/ --overwrite
+#     # - name: Purge CDN endpoint
+#     #   uses: azure/CLI@v1
+#     #   with:
+#     #     inlineScript: |
+#     #        az cdn endpoint purge --content-paths  "/*" --profile-name "CDN_PROFILE_NAME" --name "CDN_ENDPOINT" --resource-group "RESOURCE_GROUP"
 
-  # Azure logout
-    - name: logout
-      run: |
-            az logout
-      if: always()
+#   # Azure logout
+#     - name: logout
+#       run: |
+#             az logout
+#       if: always()
