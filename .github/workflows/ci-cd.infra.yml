@@ -1,13 +1,22 @@
 name: CI-Deploy Infra-Upload frontend-Upload Functionapp-Test-Deploy
 
 on:
-  push:
-    branches: [ main ]
-        paths:
-        - 'frontend/**'
-        - 'backend/**'
-        - 'infra/**'
-        - '.github/workflows/ci-cd.yml'
+     push:
+         branches: [ main ]
+         paths:
+         - 'frontend/**'
+         - 'backend/**'
+         - 'infra/**'
+         - '.github/workflows/ci-cd.yml'
+
+# on:
+#   push:
+#     branches: [ main ]
+#         paths:
+#         - 'frontend/**'
+#         - 'backend/**'
+#         - 'infra/**'
+#         - '.github/workflows/ci-cd.yml'
 
 permissions:
       id-token: write
