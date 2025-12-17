@@ -126,11 +126,11 @@ jobs:
     needs: [infra_build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
-      AZ_RG:        ${{ needs.infra_dev.outputs.rg }}
-      AZ_FUNC_NAME: ${{ needs.infra_dev.outputs.func_name }}
-      AZ_SWB_NAME:  ${{ needs.infra_dev.outputs.swb_name }}
-      API_BASE_URL: ${{ needs.infra_dev.outputs.api }}
-      SITE_URL:     ${{ needs.infra_dev.outputs.site_url }}
+      AZ_RG:        ${{ needs.infra_build.outputs.rg }}
+      AZ_FUNC_NAME: ${{ needs.infra_build.outputs.func_name }}
+      AZ_SWB_NAME:  ${{ needs.infra_build.outputs.swb_name }}
+      API_BASE_URL: ${{ needs.infra_build.outputs.api }}
+      SITE_URL:     ${{ needs.infra_build.outputs.site_url }}
     outputs:
       api: ${{ steps.dev_out.outputs.api }}
     steps:
