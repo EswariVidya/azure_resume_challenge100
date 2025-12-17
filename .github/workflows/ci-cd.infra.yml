@@ -21,7 +21,7 @@ jobs:
   #  =========================
   #  0) Build Functions ZIP 
   #  =========================
-build_functions:
+  build_functions:
     name: Build Functions zip (Python v2)
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +65,7 @@ build_functions:
   # =========================
   # 1) Terraform: DEV infra
   # =========================
-infra_build:
+  infra_build:
     name: Terraform 
     runs-on: ubuntu-latest
     permissions: { id-token: write, contents: read }
@@ -120,7 +120,7 @@ infra_build:
   # =========================
   # 2) Deploy  (Static Web + Functions app )
   # =========================
-infra_deploy:
+  infra_deploy:
     name: Deploy Static webapp & Function api
     runs-on: ubuntu-latest
     needs: [infra_build, build_functions]
@@ -174,7 +174,7 @@ infra_deploy:
         with:
           app-name: ${{ env.AZ_FUNC_NAME }}
           package: _dist/functionapp.zip
-          
+
       - name: Add CORS for Function App
         shell: bash
         run: |
