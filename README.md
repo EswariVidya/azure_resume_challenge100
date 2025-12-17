@@ -131,4 +131,30 @@ And to go one level up commit
 `git reset --soft HEAD~1` undoes the last commit but keeps all your changes staged. (Used when unwanted files commited/Wrong commitmessgaed updated)
 
 - Updated the test_app.py file according to functio_app.py changes thanks to Google Gemini.
-- 
+
+### Terraform - Github Workflow Backend Config
+- Problem - no configured federated identity credentials.
+- This error occurs because your Azure App Registration (azresumechallenge100) has not been authorized to trust the OIDC tokens issued by GitHub Actions. To use ARM_USE_OIDC: "true", you must manually establish this trust relationship in the Azure Portal. 
+<details>
+<summary>Step 1: Create Federated Credentials in Azure</summary>
+Sign in to the Azure Portal.
+Navigate to Microsoft Entra ID (formerly Azure AD) > App registrations.
+Select your application: azresumechallenge100.
+In the left sidebar, click Certificates & secrets.
+Select the Federated credentials tab and click + Add credential.
+Under Federated credential scenario, select GitHub Actions deploying Azure resources.
+Fill in the details for your GitHub repository:
+Organization: Your GitHub username or organization name.
+Repository: The name of your resume challenge repo.
+Entity type: Typically Branch (then enter main) or Environment (if you use GitHub Environments).
+Name: Give this credential a name (e.g., github-actions-main-branch).
+Click Add.  
+</details>
+<details>
+<summary>Step 2: Verify GitHub Workflow Permissions</summary>
+Ensure your GitHub Actions YAML file includes the necessary id-token permission. Without this, GitHub cannot request the OIDC token required to authenticate with Azure. 
+yaml
+permissions:
+  id-token: write  # Required for requesting the JWT
+  contents: read   # Required for actions/checkout
+</details>
