@@ -31,26 +31,26 @@ resource "azurerm_storage_account_static_website" "azresumechallenge_stweb" {
     error_404_document = "404.html"
   
 }
-locals {
-  site_files = fileset("/Users/vidya/Desktop/Vidya folder/azure_resume_challenge100/frontend", "**")
-}
+# locals {
+#   site_files = fileset("/Users/vidya/Desktop/Vidya folder/azure_resume_challenge100/frontend", "**")
+# }
 
-#Frontend files upload must be replaced to upload files from Github Actions pipeline/Azcopy sync
-resource "azurerm_storage_blob" "azresumechallenge_stblob" {
-  for_each               = local.site_files
-  name                   = each.value
-  storage_account_name   = azurerm_storage_account.azresumechallenge_st.name
-  storage_container_name = "$web"
-  type                   = "Block"
-  source                 = "/Users/vidya/Desktop/Vidya folder/azure_resume_challenge100/frontend/${each.value}"
-  content_type           = lookup({
-    html = "text/html"
-    css  = "text/css"
-    js   = "application/javascript"
-    png  = "image/png"
-    svg  = "image/svg+xml"
-  }, regex("\\.([^.]+)$", each.value)[0], "application/octet-stream")
-}
+# #Frontend files upload must be replaced to upload files from Github Actions pipeline/Azcopy sync
+# resource "azurerm_storage_blob" "azresumechallenge_stblob" {
+#   for_each               = local.site_files
+#   name                   = each.value
+#   storage_account_name   = azurerm_storage_account.azresumechallenge_st.name
+#   storage_container_name = "$web"
+#   type                   = "Block"
+#   source                 = "/Users/vidya/Desktop/Vidya folder/azure_resume_challenge100/frontend/${each.value}"
+#   content_type           = lookup({
+#     html = "text/html"
+#     css  = "text/css"
+#     js   = "application/javascript"
+#     png  = "image/png"
+#     svg  = "image/svg+xml"
+#   }, regex("\\.([^.]+)$", each.value)[0], "application/octet-stream")
+# }
 
 ##Backend resources
 
