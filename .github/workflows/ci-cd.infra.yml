@@ -50,7 +50,7 @@ jobs:
 
       - name: Create functionapp.zip
         run: |
-          cd "${{ env.FUNCTIONS_DIR }}"
+          cd "${{ env.FUNCTIONS_DIR }}/api"
           zip -r ../functionapp.zip . \
             -x "**/__pycache__/*" ".venv/*" "**/.pytest_cache/*" ".git/*"
           ls -lh ../functionapp.zip
@@ -181,7 +181,8 @@ jobs:
           az functionapp cors remove -g "${AZ_RG}" -n "${AZ_FUNC_NAME}" --allowed-origins '*' || true
           if [ -n "${SITE_URL}" ]; then
             az functionapp cors add -g "${AZ_RG}" -n "${AZ_FUNC_NAME}" --allowed-origins "${SITE_URL}"
-    
+          fi
+          
       - name: Stamp DEV API base into appconfig.js
         shell: bash
         run: echo "window.__APP_CONFIG__={apiBase:'${API_BASE_URL}'};" > frontend/appconfig.js
