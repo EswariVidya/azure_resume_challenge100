@@ -80,14 +80,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions: { id-token: write, contents: read }
     defaults: { run: { working-directory: infra } }
-    with:
-        creds: ${{ secrets.AZURE_RESUME_SECRET }}
     env:
       TF_IN_AUTOMATION: "1"
       ARM_USE_OIDC: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
+        with:
+          creds: ${{ secrets.AZURE_RESUME_SECRET }}
 
       - name: Init DEV state
         run: terraform init -input=false -reconfigure -backend-config="key=cloudchallenge/dev.tfstate"
