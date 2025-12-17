@@ -15,7 +15,7 @@
   });
 
   // Recoded this line to use API_BASE if set, otherwise use the fallback URL.
-  const ENDPOINT = API_BASE ? `${API_BASE}/visits` : null;
+  const ENDPOINT = API_BASE ? `${API_BASE}/api/visits` : null;
   
 
   // The original hardcoded variables are now redundant but kept for context:

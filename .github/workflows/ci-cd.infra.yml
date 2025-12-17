@@ -191,5 +191,5 @@ jobs:
         id: dev_out
         shell: bash
         run: |
-          echo "site_url=${$SITE_URL}"  >> $GITHUB_OUTPUT
+          echo "site_url=${SITE_URL}"  >> $GITHUB_OUTPUT
           echo "api=${API_BASE_URL}" >> $GITHUB_OUTPUT
