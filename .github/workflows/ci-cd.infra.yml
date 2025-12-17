@@ -67,7 +67,6 @@ jobs:
   # =========================
   infra:
     name: Terraform 
-    environment: dev
     runs-on: ubuntu-latest
     permissions: { id-token: write, contents: read }
     defaults: { run: { working-directory: infra } }
