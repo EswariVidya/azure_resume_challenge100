@@ -18,54 +18,54 @@ env:
   STATIC_DIR: frontend
 
 jobs:
-   # =========================
-   # 0) Build Functions ZIP 
-   # =========================
-  # build_functions:
-  #   name: Build Functions zip (Python v2)
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
+  #  =========================
+  #  0) Build Functions ZIP 
+  #  =========================
+build_functions:
+    name: Build Functions zip (Python v2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Set up Python 3.11
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: '3.11'
-  #         cache: pip
-  #         cache-dependency-path: ${{ env.FUNCTIONS_DIR }}/api/requirements.txt
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: ${{ env.FUNCTIONS_DIR }}/api/requirements.txt
 
-  #     - name: Vendor deps into .python_packages
-  #       working-directory: ${{ env.FUNCTIONS_DIR }}/api
-  #       run: |
-  #         rm -rf .python_packages
-  #         mkdir -p .python_packages/lib/site-packages
-  #         python -m pip install --upgrade pip
-  #         pip install -r requirements.txt --target .python_packages/lib/site-packages
+      - name: Vendor deps into .python_packages
+        working-directory: ${{ env.FUNCTIONS_DIR }}/api
+        run: |
+          rm -rf .python_packages
+          mkdir -p .python_packages/lib/site-packages
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --target .python_packages/lib/site-packages
 
-  #     - name: Verify required files exist
-  #       working-directory: ${{ env.FUNCTIONS_DIR }}/api
-  #       run: |
-  #         test -f host.json
-  #         test -f function_app.py
+      - name: Verify required files exist
+        working-directory: ${{ env.FUNCTIONS_DIR }}/api
+        run: |
+          test -f host.json
+          test -f function_app.py
 
-  #     - name: Create functionapp.zip
-  #       run: |
-  #         cd "${{ env.FUNCTIONS_DIR }}"
-  #         zip -r ../functionapp.zip . \
-  #           -x "**/__pycache__/*" ".venv/*" "**/.pytest_cache/*" ".git/*"
-  #         ls -lh ../functionapp.zip
+      - name: Create functionapp.zip
+        run: |
+          cd "${{ env.FUNCTIONS_DIR }}"
+          zip -r ../functionapp.zip . \
+            -x "**/__pycache__/*" ".venv/*" "**/.pytest_cache/*" ".git/*"
+          ls -lh ../functionapp.zip
 
-  #     - name: Upload artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: functionapp-zip
-  #         path: functionapp.zip
-  #         if-no-files-found: error
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: functionapp-zip
+          path: functionapp.zip
+          if-no-files-found: error
 
   # =========================
   # 1) Terraform: DEV infra
   # =========================
-  infra_build:
+infra_build:
     name: Terraform 
     runs-on: ubuntu-latest
     permissions: { id-token: write, contents: read }
@@ -120,10 +120,10 @@ jobs:
   # =========================
   # 2) Deploy  (Static Web + Functions app )
   # =========================
-  infra_deploy:
+infra_deploy:
     name: Deploy Static webapp & Function api
     runs-on: ubuntu-latest
-    needs: [infra_build]
+    needs: [infra_build, build_functions]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
       AZ_RG:        ${{ needs.infra_build.outputs.rg }}
@@ -161,12 +161,20 @@ jobs:
           set -e
           az functionapp show -g "${AZ_RG}" -n "${AZ_FUNC_NAME}" --query "name" -o tsv
 
-      - name: Deploy Functions (DEV)
+      - name: 'Run unit test'
+        shell: bash
+        run: |
+          pushd './${{ env.FUNCTIONS_DIR }}/api'
+          python -m pip install --upgrade pip
+          pip install pytest azure-functions azure.cosmos
+          pytest test_app.py
+
+      - name: Deploy Functions 
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ env.AZ_FUNC_NAME }}
           package: _dist/functionapp.zip
-
+          
       - name: Add CORS for Function App
         shell: bash
         run: |
