@@ -7,7 +7,7 @@ on:
          - 'frontend/**'
          - 'backend/**'
          - 'infra/**'
-         - '.github/workflows/ci-cd.yml'
+         - '.github/workflows/ci-cd.infra.yml'
 
 # on:
 #   push:
