@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: functionapp-zip
-          path: functionapp.zip
+          path: api/functionapp.zip
           if-no-files-found: error
 
   # =========================
@@ -182,7 +182,7 @@ jobs:
           if [ -n "${SITE_URL}" ]; then
             az functionapp cors add -g "${AZ_RG}" -n "${AZ_FUNC_NAME}" --allowed-origins "${SITE_URL}"
           fi
-          
+
       - name: Stamp DEV API base into appconfig.js
         shell: bash
         run: echo "window.__APP_CONFIG__={apiBase:'${API_BASE_URL}'};" > frontend/appconfig.js
